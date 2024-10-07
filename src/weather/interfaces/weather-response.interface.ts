@@ -1,5 +1,4 @@
 export interface WeatherInfo {
-  main: string;
   description: string;
 }
 
