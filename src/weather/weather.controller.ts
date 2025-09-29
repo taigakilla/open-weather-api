@@ -3,7 +3,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { WeatherService } from './weather.service';
 
 @Controller('')
-export class WaetherController {
+export class WeatherController {
   constructor(
     private readonly weatherService: WeatherService,
     private readonly prisma: PrismaService

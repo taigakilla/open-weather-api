@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { default as axios } from 'axios';
 import { PrismaService } from 'prisma/prisma.service';
 import {
   TempInfos,
   WeatherInfo,
 } from './interfaces/weather-response.interface';
+import { IWeatherService } from './interfaces/weather.interface';
 
 @Injectable()
-export class WeatherService {
+export class WeatherService implements IWeatherService {
   constructor(private prisma: PrismaService) {}
   async getWeatherInfos() {
     const response = await axios.get(
@@ -27,31 +27,5 @@ export class WeatherService {
       feels_like: tempInfos.feels_like,
       main: weatherInfos.description,
     };
-  }
-  calculateEfficiency(temperature): number {
-    if (temperature >= 28) return 100;
-    if (temperature <= 24) return 75;
-    const efficiency = Math.round(75 + (25 / 4) * (temperature - 24));
-
-    return efficiency;
-  }
-
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  async efficiencySyncDB() {
-    const response = await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?lat=-18.579250&lon=-46.518589&appid=${process.env.API_KEY}&units=metric&lang=pt_br`
-    );
-
-    const currentTemperature = response.data.main.temp;
-
-    const efficiency = this.calculateEfficiency(currentTemperature);
-
-    await this.prisma.propiedadesDaMaquina.create({
-      data: {
-        temperatura: currentTemperature,
-        eficiencia: efficiency,
-        timestamp: new Date(),
-      },
-    });
   }
 }
